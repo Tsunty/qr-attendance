@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Генератор QR-кода студента</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
+
+  <div class="bg-white p-8 rounded-2xl shadow-lg w-full max-w-sm text-center">
+    <h2 class="text-2xl font-bold text-gray-800 mb-6">Ваш пропуск на пару</h2>
+    
+    <div class="text-left mb-4">
+      <label class="block text-gray-700 text-sm font-bold mb-2">Имя или ФИО</label>
+      <input 
+        type="text" 
+        id="studentName" 
+        class="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:border-blue-500" 
+        placeholder="Например: Ярослав, София, Матвей"
+      >
+    </div>
+
+    <div class="text-left mb-6">
+      <label class="block text-gray-700 text-sm font-bold mb-2">Группа</label>
+      <input 
+        type="text" 
+        id="studentGroup" 
+        class="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:border-blue-500" 
+        placeholder="Например: ИС-31"
+      >
+    </div>
+
+    <button 
+      onclick="generateQR()" 
+      class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg transition-colors"
+    >
+      Создать QR-код
+    </button>
+
+    <div id="qrContainer" class="mt-8 flex justify-center hidden">
+      <div class="p-4 bg-white border-4 border-blue-100 rounded-xl">
+        <img id="qrcodeImg" src="" alt="QR Code" class="w-56 h-56 hidden">
+      </div>
+    </div>
+    
+    <p id="resultText" class="mt-4 text-gray-600 font-medium hidden"></p>
+  </div>
+
+  <script>
+    function generateQR() {
+      const name = document.getElementById("studentName").value.trim();
+      const group = document.getElementById("studentGroup").value.trim();
+
+      if (!name) {
+        alert("Пожалуйста, введите имя!");
+        return;
+      }
+
+      const qrData = group ? `${name} ${group}` : name;
+      
+      // Идеально кодируем кириллицу для интернета
+      const encodedData = encodeURIComponent(qrData);
+      
+      // Запрашиваем готовую картинку у надежного сервиса
+      const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodedData}&charset-source=UTF-8`;
+
+      const img = document.getElementById('qrcodeImg');
+      const qrContainer = document.getElementById("qrContainer");
+      const resultText = document.getElementById("resultText");
+
+      // Подставляем ссылку в картинку
+      img.src = qrUrl;
+      
+      // Как только картинка загрузится с сервера - показываем её
+      img.onload = () => {
+        img.classList.remove("hidden");
+        qrContainer.classList.remove("hidden");
+        resultText.classList.remove("hidden");
+        resultText.innerText = qrData;
+      };
+    }
+  </script>
+
+</body>
+</html>
